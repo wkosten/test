@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>Leaflet kaartje</title>
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+<link href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" rel="stylesheet" type="text/css" />
+<style>
+#nlmaps-holder
+{
+ height: 600px;
+ width:100%;
+}
+</style>
+</head>
+<body>
+<div id="nlmaps-holder"></div>
+
+<script type="text/javascript">
+var backgroundMap = L.tileLayer('https://geodata.nationaalgeoregister.nl/tiles/service/wmts/brtachtergrondkaart/EPSG:3857/{z}/{x}/{y}.png',{
+		attribution: 'NLMaps',
+		maxZoom: 19
+		}
+	);
+	
+	
+var greyMap = L.tileLayer('https://geodata.nationaalgeoregister.nl/tiles/service/wmts/brtachtergrondkaartgrijs/EPSG:3857/{z}/{x}/{y}.png', {attribution: 'NLMaps'});	
+
+var map = L.map('nlmaps-holder').setView([51.4536672, 3.5709125], 12);
+greyMap.addTo(map);
+
+var abdij = [51.50059642, 3.61532164];
+var abdijMarker = L.marker(abdij).addTo(map);
+var abdijPopup = "Abdij Middelburg";
+abdijMarker.bindPopup(abdijPopup);
+
+var stadhuis = [51.44783602, 3.56894034];
+var stadhuisMarker = L.marker(stadhuis).addTo(map);
+var stadhuisPopup = "Stadhuis Vlissingen";
+stadhuisMarker.bindPopup(stadhuisPopup);
+
+addBigfoot();
+
+
+function addBigfoot()
+{
+// Create a marker first
+var geojsonMarkerOptions = {
+	radius: 8,
+	fillColor: "#ff7800",
+	color: "#000",
+	weight: 1,
+	opacity: 1,
+	fillOpacity: 0.8
+};
+
+//create the geojson layer
+var geojson = L.geoJson(null,{
+	pointToLayer: function (feature, latlng) {
+		return L.circleMarker(latlng, geojsonMarkerOptions);
+	}
+}).addTo(map);
+
+//add your geojson data to the layer
+var xhr = new XMLHttpRequest();
+xhr.open('GET', encodeURI("bigfoot.json"));
+xhr.onload = function() {
+if (xhr.status === 200) {
+		geojson.addData(JSON.parse(xhr.responseText));
+	} else {
+		alert('Request failed.  Returned status of ' + xhr.status);
+	}
+};
+xhr.send();
+}
+	
+</script>
+</body>
+</html>
